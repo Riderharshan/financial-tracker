@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 800px;
+    padding: 45px;
+
+    background: linear-gradient(145deg,#1e293b,#0f172a);
+    border-radius: 25px;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+
+    text-align: center;
+}
+
+.profile-img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    
+    box-shadow: 0 0px 50px rgb(0, 172, 252);
+    margin-bottom: 20px;
+}
+
+.profile-info {
+    margin-top: 20px;
+}
+
+.profile-info p {
+    font-size: 16px;
+    margin: 6px 0;
+}
+
+.edit-btn {
+    margin-top: 20px;
+    background: linear-gradient(135deg,#6366f1,#38bdf8);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 12px;
+    color: white;
+    transition: 0.3s;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+}
+
+.form-section {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.form-section input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: white;
+}
+
+.save-btn {
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: white;
+    
+}
+/* 🔥 PREMIUM USERNAME STYLE 🔥 */
+
+.profile-username {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-top: 10px;
+
+    background: linear-gradient(90deg, #f83838, #6366f1, #22c55e, #ff00bf, #000000, #ffffff,#f2ff00, #39e4e1, #383636);
+    background-size: 200% auto;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: gradientMove 2s linear infinite;
+
+    text-shadow: 
+        0 0 10px rgba(56,189,248,0.5),
+        0 0 20px rgba(99,102,241,0.4);
+}
+
+/* Smooth gradient animation */
+@keyframes gradientMove {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+/* 🔥 IMAGE FLOAT MODAL 🔥 */
+
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+
+    background: radial-gradient(circle at center, rgb(0, 0, 0), rgba(8, 13, 149, 0.666));
+
+    backdrop-filter: blur(10px);
+
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-img {
+    max-width: 400px;
+    max-height: 400px;
+    border-radius: 20px;
+
+    box-shadow:
+        0 0 40px rgba(59,130,246,0.6),
+        0 0 80px rgba(99,102,241,0.4);
+
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+/* Hide default file input */
+.custom-file-upload input[type="file"] {
+    display: none;
+}
+
+.upload-icon-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#6366f1,#38bdf8);
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-bottom: 15px;
+}
+
+.upload-icon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+}
+.profile-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* ⚙ SETTINGS ICON */
+
+.profile-card{
+    position: relative;
+}
+
+.profile-settings{
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 35px;
+    color: #00fbff;
+
+    animation: spinGear 4s linear infinite;
+}
+
+/* glow effect */
+
+.profile-settings i{
+    text-shadow:
+        0 0 10px rgba(56,189,248,0.9),
+        0 0 20px rgba(56,189,248,0.7),
+        0 0 30px rgba(56,189,248,0.5);
+}
+
+/* rotation animation */
+
+@keyframes spinGear{
+    from{
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
+}
+</style>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-settings">
+    <a href="{% url 'settings_page' %}">
+    <i class="bi bi-gear"></i>
+
+</a>
+</div>
+
+        <div class="profile-img-wrapper">
+    {% if profile.profile_image %}
+        <img src="{{ profile.profile_image.url }}" class="profile-img" onclick="openImageModal(this.src)">
+    {% else %}
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-img" onclick="openImageModal(this.src)">
+    {% endif %}
+</div>
+       <h2 class="profile-username">
+    {{ request.user.username }}
+</h2>
+        <div class="profile-info">
+            <p><strong>Email:</strong> {{ request.user.email }}</p>
+            <p><strong>Phone:</strong> {{ profile.phone_number|default:"Not Provided" }}</p>
+           
+        </div>
+
+        
+    </div>
+</div>
+
+<script>
+
+function openImageModal(src) {
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+
+    modal.style.display = "flex";
+    modalImg.src = src;
+}
+
+function closeImageModal() {
+    document.getElementById("imageModal").style.display = "none";
+}
+
+</script>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+    <img id="modalImage" class="modal-img">
+</div>
+{% endblock %}

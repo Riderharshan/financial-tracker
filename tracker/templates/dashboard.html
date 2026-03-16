@@ -1,0 +1,719 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    h2, h3, h4 {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .dashboard-card {
+        background: linear-gradient(145deg, #1e293b, #0f172a);
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        transition: 0.3s;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-18px);
+    }
+
+    .dashboard-title {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .dashboard-value {
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    .table-modern {
+        background: linear-gradient(145deg, #1e293b, #0f172a);
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    .table-modern table {
+        background: transparent !important;
+        color: #e2e8f0 !important;
+    }
+
+    .table-modern thead {
+         background: linear-gradient(135deg,#00b3ff,#00b3ff);
+    }
+
+    .table-modern thead th {
+        background: transparent !important;
+        border: none !important;
+        color: white !important;
+    }
+
+    .table-modern tbody tr {
+        background-color: #1e293b !important;
+        border-bottom: 1px solid #334155;
+    }
+
+    .table-modern tbody tr td {
+        background: transparent !important;
+        border: none !important;
+        color: #e2e8f0 !important;
+    }
+
+    .table-modern tbody tr:hover {
+        background-color: #334155 !important;
+        transition: 0.2s;
+    }
+
+    .chart-card {
+        background: linear-gradient(145deg, #1e293b, #0f172a);
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    hr {
+        border-color: #334155;
+    }
+
+.budget-warning {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(239,68,68,0.15), rgba(127,29,29,0.25));
+    border-left: 6px solid #ef4444;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 25px rgba(239,68,68,0.25);
+    animation: glowPulse 2s infinite alternate;
+}
+
+.warning-icon {
+    font-size: 28px;
+    background: rgba(239,68,68,0.2);
+    padding: 12px 16px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(239,68,68,0.4);
+}
+
+.warning-text {
+    font-size: 16px;
+    color: #fecaca;
+    line-height: 1.5;
+}
+
+.warning-text strong {
+    color: #ffffff;
+    font-size: 18px;
+}
+
+@keyframes glowPulse {
+    from { box-shadow: 0 0 15px rgb(246, 2, 2); }
+    to { box-shadow: 0 0 40px rgb(245, 0, 0); }
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin: 0 4px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: 0.3s ease;
+    font-size: 16px;
+}
+
+.edit-btn:hover {
+    background: linear-gradient(135deg,#38bdf8,#6366f1);
+    color: white;
+    transform: scale(1.1);
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg,#ef4444,#dc2626);
+    color: white;
+    transform: scale(1.1);
+}
+
+.no-data-screen{
+height:80vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+color:#cbd5e1;
+}
+
+.no-data-screen h3{
+margin-top:20px;
+font-weight:600;
+}
+
+/* NEW DROPDOWN STYLE */
+/* HEADER ALIGNMENT */
+
+.dashboard-top{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:20px;
+}
+
+
+/* DROPDOWN BUTTON */
+
+.month-dropdown{
+width:200px;
+padding:9px 14px;
+font-size:14px;
+font-weight:500;
+color:white;
+border:1px solid rgba(56,189,248,0.7);
+border-radius:12px;
+cursor:pointer;
+transition:0.35s ease;
+
+/* FORCE GRADIENT */
+
+background:linear-gradient(135deg,#38bdf8,#1e3a8a) !important;
+
+box-shadow:
+0 6px 18px rgba(0,0,0,0.6),
+0 0 14px rgba(56,189,248,0.6);
+
+/* remove browser default styling */
+
+appearance:none;
+-webkit-appearance:none;
+-moz-appearance:none;
+
+background-image:url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.516 7.548a.625.625 0 01.884-.032L10 10.96l3.6-3.444a.625.625 0 11.852.916l-4.02 3.844a.625.625 0 01-.852 0l-4.02-3.844a.625.625 0 01-.044-.884z'/></svg>");
+background-repeat:no-repeat;
+background-position:right 14px center;
+background-size:16px;
+
+padding-right:36px;
+}
+
+
+/* HOVER ANIMATION */
+
+.month-dropdown:hover{
+transform:translateY(-2px);
+background:linear-gradient(135deg,#0ea5e9,#1e40af) !important;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,0.7),
+0 0 20px rgba(56,189,248,0.9);
+}
+
+
+/* DROPDOWN MENU (UNCHANGED) */
+
+.month-dropdown option{
+background:#0b1a33;
+color:#e2e8f0;
+padding:12px;
+box-shadow:
+0 10px 40px rgba(0,0,0,0.8),
+0 0 12px rgba(56,189,248,0.4);
+}
+
+
+/* OPTION HOVER */
+
+.month-dropdown option:hover{
+background:linear-gradient(135deg,#38bdf8,#1e3a8a);
+color:white;
+}
+
+.no-data-heading {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-top: 10px;
+
+    background: linear-gradient(
+        90deg,
+        #f83838,
+        #6366f1,
+        #22c55e,
+        #ff00bf,
+        #000000,
+        #ffffff,
+        #f2ff00,
+        #39e4e1,
+        #383636
+    );
+
+    background-size: 200% auto;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: gradientMove 3s linear infinite;
+
+    text-shadow:
+        0 0 10px rgba(56,189,248,0.5),
+        0 0 20px rgba(99,102,241,0.4);
+}
+
+/* gradient animation */
+@keyframes gradientMove {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+.no-data-subtext {
+    font-size: 18px;
+    margin-top: 8px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+
+    background: linear-gradient(90deg, #38bdf8, #1e3a8a);
+    background-size: 200% auto;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: blueGradientMove 3s linear infinite;
+
+    text-shadow:
+        0 0 10px rgba(56,189,248,0.4),
+        0 0 20px rgba(30,58,138,0.3);
+}
+
+@keyframes blueGradientMove {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* BUDGET PROGRESS */
+
+.budget-progress-card{
+
+background: linear-gradient(145deg,#1e293b,#0f172a);
+
+padding:20px;
+border-radius:16px;
+
+margin-top:25px;
+
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+
+}
+
+.budget-header{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+color:#cbd5e1;
+font-weight:500;
+}
+
+.budget-bar{
+
+height:14px;
+background:#334155;
+border-radius:10px;
+
+overflow:hidden;
+}
+
+.budget-fill{
+
+height:100%;
+background:linear-gradient(90deg,#22c55e,#facc15,#ef4444);
+
+transition:0.4s;
+}
+
+.budget-percent{
+
+text-align:right;
+margin-top:6px;
+font-size:14px;
+color:#94a3b8;
+
+}
+</style>
+
+<div class="dashboard-top">
+<h2>Dashboard</h2>
+
+<form method="GET">
+<select name="month" onchange="this.form.submit()" class="month-dropdown">
+
+<option value="">Current Month</option>
+
+<option value="all" {% if selected_month == "all" %}selected{% endif %}>All Months</option>
+
+<option value="1" {% if selected_month == 1 %}selected{% endif %}>January</option>
+<option value="2" {% if selected_month == 2 %}selected{% endif %}>February</option>
+<option value="3" {% if selected_month == 3 %}selected{% endif %}>March</option>
+<option value="4" {% if selected_month == 4 %}selected{% endif %}>April</option>
+<option value="5" {% if selected_month == 5 %}selected{% endif %}>May</option>
+<option value="6" {% if selected_month == 6 %}selected{% endif %}>June</option>
+<option value="7" {% if selected_month == 7 %}selected{% endif %}>July</option>
+<option value="8" {% if selected_month == 8 %}selected{% endif %}>August</option>
+<option value="9" {% if selected_month == 9 %}selected{% endif %}>September</option>
+<option value="10" {% if selected_month == 10 %}selected{% endif %}>October</option>
+<option value="11" {% if selected_month == 11 %}selected{% endif %}>November</option>
+<option value="12" {% if selected_month == 12 %}selected{% endif %}>December</option>
+
+</select>
+</form>
+</div>
+
+{% if transactions|length == 0 %}
+
+<div class="no-data-screen">
+
+<script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.3/dist/dotlottie-wc.js" type="module"></script>
+
+<dotlottie-wc 
+src="https://lottie.host/893a4a3a-1e73-477c-9b19-95bd3aadfae1/9RetJ63LQG.lottie"
+autoplay
+loop
+style="width:350px;height:350px">
+</dotlottie-wc>
+
+<h2 class="no-data-heading">No Financial Activity In This Month</h2>
+<h5 class="no-data-subtext">Add Income or Expense To See Analytics</h5>
+
+</div>
+
+{% else %}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="dashboard-card">
+            <div class="dashboard-title">Total Income</div>
+            <div class="dashboard-value" style="color:#22c55e;">₹ {{ total_income }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dashboard-card">
+            <div class="dashboard-title">Total Expense</div>
+            <div class="dashboard-value" style="color:#ef4444;">₹ {{ total_expense }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dashboard-card">
+            <div class="dashboard-title">Balance</div>
+            <div class="dashboard-value" style="color:#38bdf8;">₹ {{ balance }}</div>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<h3>Income Transactions</h3>
+
+<div class="table-modern">
+<table class="table mb-0 align-middle">
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Category</th>
+<th>Amount</th>
+<th>Type</th>
+<th class="text-center">Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for t in transactions %}
+{% if t.type == "Income" %}
+<tr>
+<td>{{ t.date }}</td>
+<td>{{ t.category }}</td>
+<td>₹ {{ t.amount }}</td>
+
+<td>
+<span style="color:#22c55e;font-weight:500;">Income</span>
+</td>
+
+<td class="text-center">
+
+<a href="{% url 'edit_transaction' t.model t.id %}" class="action-btn edit-btn">
+<i class="bi bi-pencil-square"></i>
+</a>
+
+<a href="{% url 'delete_transaction' t.model t.id %}" 
+class="action-btn delete-btn"
+onclick="return confirm('Are you sure you want to delete this transaction?');">
+
+<i class="bi bi-trash"></i>
+
+</a>
+
+</td>
+</tr>
+{% endif %}
+{% endfor %}
+
+</tbody>
+</table>
+</div>
+
+
+<hr style="margin:40px 0;">
+
+
+<h3>Expense Transactions</h3>
+
+<div class="table-modern">
+<table class="table mb-0 align-middle">
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Category</th>
+<th>Amount</th>
+<th>Type</th>
+<th class="text-center">Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for t in transactions %}
+{% if t.type == "Expense" %}
+<tr>
+<td>{{ t.date }}</td>
+<td>{{ t.category }}</td>
+<td>₹ {{ t.amount }}</td>
+
+<td>
+<span style="color:#ef4444;font-weight:500;">Expense</span>
+</td>
+
+<td class="text-center">
+
+<a href="{% url 'edit_transaction' t.model t.id %}" class="action-btn edit-btn">
+<i class="bi bi-pencil-square"></i>
+</a>
+
+<a href="{% url 'delete_transaction' t.model t.id %}" 
+class="action-btn delete-btn"
+onclick="return confirm('Are you sure you want to delete this transaction?');">
+
+<i class="bi bi-trash"></i>
+
+</a>
+
+</td>
+</tr>
+{% endif %}
+{% endfor %}
+
+</tbody>
+</table>
+</div>
+
+
+<hr>
+
+{% if budget %}
+
+<div class="budget-progress-card">
+
+<div class="budget-header">
+<span>Monthly Budget: ₹{{ budget.monthly_limit }}</span>
+<span>Spent: ₹{{ total_expense }}</span>
+</div>
+
+<div class="budget-bar">
+
+<div class="budget-fill"
+     style="width: {{ budget_percent }}%;">
+</div>
+
+</div>
+
+<div class="budget-percent">
+{{ budget_percent|floatformat:0 }}% Used
+</div>
+
+</div>
+
+{% endif %}
+
+{% if alert %}
+<div class="budget-warning mt-4">
+<div class="warning-icon">⚠</div>
+<div class="warning-text">
+<strong>Budget Alert!</strong><br>
+{{ alert }}
+</div>
+</div>
+{% endif %}
+
+<hr>
+
+<div class="row g-4">
+
+<div class="col-md-6">
+<div class="chart-card">
+<h4>Expense Distribution</h4>
+<div style="height:350px;">
+<canvas id="expenseChart"></canvas>
+</div>
+</div>
+</div>
+
+<div class="col-md-6">
+<div class="chart-card">
+<h4>Monthly Income vs Expense</h4>
+<div style="height:350px;">
+<canvas id="barChart"></canvas>
+</div>
+</div>
+</div>
+
+</div>
+
+
+{% endif %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const pieCtx=document.getElementById('expenseChart');
+const categories=JSON.parse('{{ categories|escapejs }}');
+const amounts=JSON.parse('{{ amounts|escapejs }}');
+
+if(categories.length>0){
+
+new Chart(pieCtx,{
+type:'pie',
+data:{
+labels:categories,
+datasets:[{
+data:amounts,
+backgroundColor:[
+'#3b82f6','#f97316','#ef4444','#facc15','#22c55e',
+'#8b5cf6','#d946ef','#ec4899','#14b8a6',
+'#06b6d4','#0ea5e9','#10b981','#84cc16','#eab308',
+'#fb923c','#f43f5e','#7c3aed','#0891b2','#16a34a',
+'#dc2626','#9333ea','#0284c7','#ca8a04','#a855f7'
+],
+borderColor:'#0f172a',
+borderWidth:4,
+hoverOffset:35
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+layout:{padding:20},
+plugins:{
+legend:{labels:{color:"white"}}
+}
+}
+});
+}
+
+</script>
+
+<script>
+
+const barCtx=document.getElementById('barChart');
+const months=JSON.parse('{{ months|escapejs }}');
+const incomeData=JSON.parse('{{ income_data|escapejs }}');
+const expenseData=JSON.parse('{{ expense_data|escapejs }}');
+
+if(months.length>0){
+
+new Chart(barCtx,{
+type:'bar',
+data:{
+labels:months,
+datasets:[
+{
+label:'Income',
+data:incomeData,
+backgroundColor:function(context){
+const chart=context.chart;
+const{ctx,chartArea}=chart;
+if(!chartArea)return;
+const gradient=ctx.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
+gradient.addColorStop(0,'#4ade80');
+gradient.addColorStop(1,'#166534');
+return gradient;
+},
+borderRadius:20,
+borderSkipped:false
+},
+{
+label:'Expense',
+data:expenseData,
+backgroundColor:function(context){
+const chart=context.chart;
+const{ctx,chartArea}=chart;
+if(!chartArea)return;
+const gradient=ctx.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
+gradient.addColorStop(0,'#f87171');
+gradient.addColorStop(1,'#7f1d1d');
+return gradient;
+},
+borderRadius:20,
+borderSkipped:false
+}
+]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+layout:{padding:20},
+plugins:{legend:{labels:{color:"white"}}},
+scales:{
+x:{ticks:{color:"white"},grid:{color:"rgba(255,255,255,0.05)"}},
+y:{ticks:{color:"white"},grid:{color:"rgba(255,255,255,0.05)"}}
+}
+},
+plugins:[{
+id:'shadowPlugin',
+beforeDatasetDraw(chart,args){
+const ctx=chart.ctx;
+ctx.save();
+ctx.shadowColor='rgba(0,0,0,0.6)';
+ctx.shadowBlur=20;
+ctx.shadowOffsetX=4;
+ctx.shadowOffsetY=8;
+},
+afterDatasetDraw(chart,args){
+chart.ctx.restore();
+}
+}]
+});
+}
+
+</script>
+
+{% endblock %}

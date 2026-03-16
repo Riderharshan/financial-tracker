@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+
+/* 🔥 Center Wrapper */
+.edit-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+/* 🔥 EDIT CARD */
+.edit-card {
+    width: 100%;
+    max-width: 600px;
+    padding: 40px;
+
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border-radius: 20px;
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+
+    animation: fadeInUp 0.5s ease;
+}
+
+/* ✅ Center Heading */
+.edit-card h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Inputs */
+.edit-card input,
+.edit-card select,
+.edit-card textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+
+    color: white;
+    outline: none;
+
+    transition: 0.3s ease;
+}
+
+.edit-card input:focus,
+.edit-card select:focus,
+.edit-card textarea:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px rgba(56,189,248,0.5);
+}
+
+/* Buttons container */
+.button-group {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Save button */
+.edit-btn-save {
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+
+.edit-btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+}
+
+/* Cancel button */
+.edit-btn-cancel {
+    background: #475569;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 12px;
+    color: white;
+    margin-left: 12px;
+    text-decoration: none;   /* ✅ Remove underline */
+    display: inline-block;
+    transition: 0.3s ease;
+}
+
+.edit-btn-cancel:hover {
+    background: #64748b;
+    transform: translateY(-2px);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+
+
+<div class="edit-wrapper">
+    <div class="edit-card">
+        <h3>Edit Transaction</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <div class="button-group">
+                <button type="submit" class="edit-btn-save">
+                    <i class="bi bi-check-circle me-1"></i> Save Changes
+                </button>
+
+                <a href="/" class="edit-btn-cancel">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

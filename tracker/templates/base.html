@@ -1,0 +1,299 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Money Mafia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: #0f172a;
+        color: white;
+    }
+
+    /* ========================= */
+    /* 🔥 PREMIUM 3D SIDEBAR 🔥 */
+    /* ========================= */
+
+    .sidebar {
+        height: 100vh;
+        width: 250px;
+        position: fixed;
+        padding-top: 30px;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        background: linear-gradient(160deg, #0f172a, #1e293b);
+        backdrop-filter: blur(12px);
+
+        box-shadow: 
+            10px 0 40px rgba(0,0,0,0.6),
+            inset -1px 0 0 rgba(255,255,255,0.05);
+
+        border-right: 1px solid rgba(255,255,255,0.05);
+        transition: 0.4s ease;
+    }
+
+    /* Brand Heading (Sky Blue) */
+    .brand-animated {
+        text-align: center;
+        
+        font-weight: 700;
+        font-size: 30px;
+        letter-spacing: 1px;
+        color: #38bdf8;   /* Sky Blue */
+    }
+
+    /* Sidebar Links */
+    .sidebar a,
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 14px;
+
+        padding: 12px 20px;
+        margin: 8px 0;
+
+        color: #cbd5e1;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 500;
+
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    /* Icon bubble */
+    .sidebar i {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+
+        border-radius: 10px;
+        background: rgba(255,255,255,0.06);
+        transition: 0.3s ease;
+    }
+
+    /* Hover effect */
+    .sidebar a:hover,
+    .sidebar-link:hover {
+        background: linear-gradient(90deg, rgba(56,189,248,0.2), rgba(99,102,241,0.2));
+        transform: translateX(6px);
+        color: white;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .sidebar a:hover i,
+    .sidebar-link:hover i {
+        background: linear-gradient(135deg,#38bdf8,#6366f1);
+        color: white;
+        transform: scale(1.1);
+    }
+
+    /* Logout red hover */
+    .logout-btn:hover {
+        background: rgba(239,68,68,0.15) !important;
+        color: #ef4444 !important;
+    }
+
+    .logout-btn:hover i {
+        background: #ef4444;
+        color: white;
+    }
+
+    /* Content spacing */
+    .main-content {
+        padding: 30px;
+    }
+
+    .main-content.with-sidebar {
+        margin-left: 250px;
+    }
+
+    .sidebar-form {
+        margin: 0;
+    }
+
+    .logout-btn {
+        cursor: pointer;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    /* ========================= */
+    /* 🔥 Toast Styles */
+    /* ========================= */
+
+    .toast-message {
+    position: fixed;
+    top: 25px;
+
+    /* Shift center after sidebar width */
+    left: calc(50% + 125px);  /* 125px = half of sidebar (250px/2) */
+    transform: translateX(-50%);
+
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 500;
+    color: white;
+    z-index: 9999;
+
+    animation: slideDown 0.4s ease, fadeOut 0.5s ease 3.5s forwards;
+
+    box-shadow: 0 10px 35px rgba(59,130,246,0.5);
+}
+
+    .toast-message.success {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    box-shadow: 0 10px 30px rgba(59,130,246,0.5);
+}
+
+    .toast-message.error {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    box-shadow: 0 10px 30px rgba(59,130,246,0.5);
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translate(-50%, -20px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes fadeOut {
+        to { opacity: 0; transform: translate(-50%, -20px); }
+    }
+    /* Brand Container */
+.brand-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* Horizontal center */
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Logo */
+.brand-logo {
+    width: 300px;   /* You can increase freely */
+    height: auto;
+    margin-bottom: 12px;
+    display: block;
+    filter: drop-shadow(0 10px 25px rgb(0, 174, 248));
+    transition: 0.3s ease;
+}
+
+.brand-logo:hover {
+    transform: scale(1.50);
+}
+/* 🔥 ACTIVE SIDEBAR LINK */
+.sidebar a.active-link {
+    background: linear-gradient(90deg, rgba(56,189,248,0.3), rgba(99,102,241,0.3));
+    transform: translateX(6px);
+    color: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+/* Active icon */
+.sidebar a.active-link i {
+    background: linear-gradient(135deg,#38bdf8,#6366f1);
+    color: white;
+}
+
+/* Hide scrollbar but allow scrolling */
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+/* Firefox */
+html {
+    scrollbar-width: none;
+}
+
+/* IE and old Edge */
+body {
+    -ms-overflow-style: none;
+}
+
+</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+
+<body>
+
+<!-- 🔥 Toast Messages -->
+{% if messages %}
+  {% for message in messages %}
+    <div class="toast-message {{ message.tags }}">
+        {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+{% if user.is_authenticated %}
+<div class="sidebar">
+    <div class="brand-container">
+    <img src="{% static 'images/logo1.png' %}" alt="Logo" class="brand-logo">
+    <h2 class="brand-animated">Money Mafia</h2>
+</div>
+
+    <a href="/" class="{% if request.path == '/' %}active-link{% endif %}">
+    <i class="bi bi-speedometer2"></i> Dashboard
+</a>
+
+<a href="/add-income/" class="{% if request.path == '/add-income/' %}active-link{% endif %}">
+    <i class="bi bi-cash-coin"></i> Add Income
+</a>
+
+<a href="/add-expense/" class="{% if request.path == '/add-expense/' %}active-link{% endif %}">
+    <i class="bi bi-wallet2"></i> Add Expense
+</a>
+
+<a href="/set-budget/" class="{% if request.path == '/set-budget/' %}active-link{% endif %}">
+    <i class="bi bi-piggy-bank"></i> Set Budget
+</a>
+
+<a href="/download-report/" class="{% if request.path == '/download-report/' %}active-link{% endif %}">
+    <i class="bi bi-file-earmark-arrow-down"></i> Download Report
+</a>
+<a href="/profile/" class="{% if request.path == '/profile/' %}active-link{% endif %}">
+    <i class="bi bi-person-circle"></i> Profile
+</a>
+    <form method="POST" action="/accounts/logout/" class="sidebar-form">
+        {% csrf_token %}
+        <button type="submit" class="sidebar-link logout-btn">
+            <i class="bi bi-box-arrow-right me-2"></i> Logout
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<div class="main-content {% if user.is_authenticated %}with-sidebar{% endif %}">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<script>
+    setTimeout(function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(t => t.remove());
+    }, 3000);
+</script>
+
+</body>
+</html>

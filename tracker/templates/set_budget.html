@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+
+/* MAIN LAYOUT */
+
+.budget-layout{
+display:flex;
+align-items:center;
+justify-content:center;
+
+gap:80px;
+
+max-width:1000px;
+margin:70px auto;
+
+padding:20px;
+flex-wrap:wrap;
+}
+
+/* ANIMATION */
+
+.budget-animation{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
+min-width:320px;
+}
+
+/* BIGGER ANIMATION */
+
+.budget-animation dotlottie-wc{
+width:400px;
+height:400px;
+}
+
+/* FORM */
+
+.form-container {
+flex:1;
+max-width:450px;
+
+background: linear-gradient(145deg, #1e293b, #0f172a);
+padding: 35px;
+border-radius: 20px;
+
+box-shadow:
+0 20px 60px rgba(0,0,0,0.7),
+inset 0 1px 0 rgba(255,255,255,0.05);
+
+transition:0.3s;
+}
+
+.form-container:hover{
+transform:translateY(-5px);
+}
+
+/* TITLE */
+
+.form-title {
+color: white;
+font-size: 28px;
+font-weight: 600;
+margin-bottom: 25px;
+text-align: center;
+}
+
+/* LABELS */
+
+.form-label {
+color: #94a3b8;
+font-weight: 500;
+margin-bottom: 6px;
+display: block;
+}
+
+/* INPUTS */
+
+.form-input {
+width: 100%;
+padding: 10px 14px;
+margin-bottom: 20px;
+border-radius: 10px;
+border: 1px solid #334155;
+background-color: #0f172a;
+color: white;
+transition: 0.3s;
+}
+
+/* INPUT FOCUS */
+
+.form-input:focus {
+border-color: #3b82f6;
+outline: none;
+box-shadow: 0 0 10px rgba(59,130,246,0.6);
+}
+
+/* BUTTON */
+
+.btn-save {
+width: 100%;
+padding: 12px;
+border-radius: 12px;
+border: none;
+
+background: linear-gradient(90deg, #3b82f6, #2563eb);
+
+color: white;
+font-weight: 600;
+font-size: 16px;
+
+transition: 0.3s;
+}
+
+.btn-save:hover {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(59,130,246,0.5);
+}
+
+</style>
+
+
+<div class="budget-layout">
+
+<!-- LEFT SIDE ANIMATION -->
+
+<div class="budget-animation">
+
+<script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.3/dist/dotlottie-wc.js" type="module"></script>
+
+<dotlottie-wc
+src="https://lottie.host/ffa6e59c-f1c4-4d0a-8383-184c5b65353e/T0HjGF00N5.lottie"
+autoplay
+loop>
+</dotlottie-wc>
+
+</div>
+
+
+<!-- RIGHT SIDE FORM -->
+
+<div class="form-container">
+
+<div class="form-title">Set Monthly Budget</div>
+
+<form method="POST">
+{% csrf_token %}
+
+<label class="form-label">Select Month</label>
+
+<select name="month" class="form-input" required>
+
+<option value="">Select Month</option>
+
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+
+</select>
+
+
+<label class="form-label">Monthly Limit (₹)</label>
+
+<input
+type="number"
+name="monthly_limit"
+value="{{ form.monthly_limit.value|default_if_none:'' }}"
+class="form-input"
+required>
+
+
+<button type="submit" class="btn-save">
+<i class="bi bi-check-circle me-1"></i>
+Save Budget
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}
