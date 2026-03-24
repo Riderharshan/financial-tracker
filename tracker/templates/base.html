@@ -230,6 +230,71 @@ body {
     -ms-overflow-style: none;
 }
 
+/* 🌞 LIGHT MODE */
+body.light-mode {
+    background-color: #f1f5f9;
+}
+
+/* ✅ ONLY HEADINGS OUTSIDE CARDS */
+body.light-mode .main-content > h1,
+body.light-mode .main-content > h2,
+body.light-mode .main-content > h3 {
+    color: #0f172a !important;
+}
+
+/* ✅ TEXT OUTSIDE CARDS (SAFE) */
+body.light-mode .main-content > p,
+body.light-mode .main-content > span {
+    color: #0f172a !important;
+}
+
+/* 🔥 SIDEBAR */
+body.light-mode .sidebar {
+    background: linear-gradient(160deg, #e2e8f0, #ffffff);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+}
+
+body.light-mode .sidebar a {
+    color: #0f172a;
+}
+
+/* 🔥 KEEP ALL CARD CONTENT SAME (VERY IMPORTANT) */
+body.light-mode .dashboard-card *,
+body.light-mode table *,
+body.light-mode .table-container * {
+    color: inherit !important;
+}
+
+/* 🔥 SETTINGS CARD LIGHT STYLE */
+body.light-mode .settings-card {
+    background: linear-gradient(145deg,#ffffff,#e2e8f0);
+    box-shadow: 0 0 25px rgba(0,0,0,0.1);
+}
+
+/* SETTINGS LINK */
+body.light-mode .settings-link {
+    color: #cbd5e1 !important;
+    background: rgba(0,0,0,0.03);
+}
+
+body.light-mode .settings-link:hover {
+    background: linear-gradient(90deg, rgba(56,189,248,0.2), rgba(99,102,241,0.2));
+    color: white !important;
+}
+
+/* INPUTS */
+body.light-mode .form-control {
+    background: white;
+    color: #0f172a;
+}
+
+/* GRADIENT TITLE */
+body.light-mode .settings-title {
+    background: linear-gradient(90deg,#38bdf8,#6366f1,#22c55e);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
 </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
@@ -295,5 +360,31 @@ body {
     }, 3000);
 </script>
 
+<script>
+function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById("themeIcon");
+
+    body.classList.toggle("light-mode");
+
+    if(body.classList.contains("light-mode")){
+        localStorage.setItem("theme", "light");
+        icon.classList = "bi bi-sun";
+    } else {
+        localStorage.setItem("theme", "dark");
+        icon.classList = "bi bi-moon-stars";
+    }
+}
+
+window.onload = function() {
+    const savedTheme = localStorage.getItem("theme");
+    const icon = document.getElementById("themeIcon");
+
+    if(savedTheme === "light"){
+        document.body.classList.add("light-mode");
+        if(icon) icon.classList = "bi bi-sun";
+    }
+}
+</script>
 </body>
 </html>

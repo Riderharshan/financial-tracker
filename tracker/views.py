@@ -37,6 +37,21 @@ import json
 from django.db.models import Sum
 from .models import Income, Expense, Budget
 from .models import Profile
+from django.contrib.auth.forms import PasswordChangeForm
+from reportlab.graphics.shapes import Circle, String
+from reportlab.platypus import *
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import A4
+from reportlab.graphics.shapes import Drawing, Circle, String
+from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics.charts.barcharts import VerticalBarChart
+from reportlab.graphics.charts.legends import Legend
+from django.http import HttpResponse
+from collections import defaultdict
+import calendar
+from reportlab.graphics.charts.lineplots import LinePlot
+from reportlab.graphics.widgets.markers import makeMarker
 
 
 @login_required
@@ -183,6 +198,7 @@ def set_budget(request):
     return render(request, "set_budget.html")
 
 
+
 @login_required
 def download_report(request):
 
@@ -196,27 +212,47 @@ def download_report(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="MoneyMafia_Report.pdf"'
 
-    doc = SimpleDocTemplate(response, pagesize=pagesizes.A4)
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=A4,
+        rightMargin=30, leftMargin=30,
+        topMargin=40, bottomMargin=30
+    )
+
     elements = []
     styles = getSampleStyleSheet()
 
-    def add_background(canvas, doc):
-        canvas.saveState()
-        canvas.setFillColor(colors.HexColor("#989898"))
-        canvas.rect(0, 0, pagesizes.A4[0], pagesizes.A4[1], fill=1)
-        canvas.restoreState()
-
+    # ---------- STYLES ----------
     title_style = ParagraphStyle(
-        'TitleStyle',
+        'Title',
         parent=styles['Title'],
-        fontSize=24,
-        textColor=colors.white,
         alignment=1,
-        spaceAfter=25
+        fontSize=22,
+        textColor=colors.HexColor("#38bdf8"),
+        spaceAfter=20
     )
 
+    heading_style = ParagraphStyle(
+        'Heading',
+        parent=styles['Heading2'],
+        textColor=colors.HexColor("#38bdf8"),
+        spaceAfter=10
+    )
+
+    normal_center = ParagraphStyle(
+        'Center',
+        parent=styles['Normal'],
+        alignment=1,
+        textColor=colors.grey
+    )
+
+    # ---------- TITLE ----------
     elements.append(Paragraph("Money Mafia Financial Report", title_style))
+    elements.append(Paragraph("Generated Summary of Your Finances", normal_center))
     elements.append(Spacer(1, 20))
+
+    # ---------- SUMMARY ----------
+    elements.append(Paragraph("Financial Summary", heading_style))
 
     summary_data = [
         ["Total Income", f"₹ {total_income}"],
@@ -224,21 +260,130 @@ def download_report(request):
         ["Balance", f"₹ {balance}"],
     ]
 
-    summary_table = Table(summary_data, colWidths=[250, 180])
+    summary_table = Table(summary_data, colWidths=[250, 200])
     summary_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#1e293b")),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor("#334155")),
-        ('FONTSIZE', (0, 0), (-1, -1), 13),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#f1f5f9")),
+        ('GRID', (0, 0), (-1, -1), 0.8, colors.grey),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('PADDING', (0, 0), (-1, -1), 10),
     ]))
 
     elements.append(summary_table)
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 25))
 
+    # ---------- MOTIVATIONAL SECTION ----------
+    motivation_title = Paragraph(
+        "Financial Insights & Motivation",
+        ParagraphStyle(
+            'MotivationTitle',
+            parent=styles['Heading2'],
+            fontSize=16,
+            textColor=colors.HexColor("#38bdf8"),
+            spaceAfter=12
+        )
+    )
+
+    motivation_text = Paragraph(
+        "Financial success is not about how much you earn, but how wisely you manage and grow your money. "
+        "Consistent tracking of your income and expenses gives you clarity, control, and confidence in your financial journey. "
+        "By making smart decisions today, you are building a stable and secure future for tomorrow. "
+        "Remember, small savings and disciplined habits compound into significant wealth over time.",
+        ParagraphStyle(
+            'MotivationText',
+            parent=styles['Normal'],
+            fontSize=11,
+            leading=16,
+            spaceAfter=10
+        )
+    )
+
+    extra_text = Paragraph(
+        "A well-planned financial strategy helps you avoid unnecessary stress and prepares you for unexpected situations. "
+        "Whether it is saving for personal goals, investing for growth, or managing day-to-day expenses, "
+        "every step you take towards financial discipline strengthens your independence and long-term stability.",
+        ParagraphStyle(
+            'ExtraText',
+            parent=styles['Normal'],
+            fontSize=11,
+            leading=16,
+            spaceAfter=12
+        )
+    )
+
+    bullet_points = [
+        "Track your daily expenses to understand spending patterns",
+    "Avoid impulsive purchases and focus on essential needs",
+    "Invest consistently to grow your wealth over time",
+    "Maintain a clear balance between income and expenses",
+    "Build an emergency fund for financial security",
+    "Set short-term and long-term financial goals",
+    "Review your financial progress regularly",
+    "Stay disciplined and committed to your financial plans",
+    "Create and follow a monthly budget",
+    "Save at least a small portion of your income every month",
+    "Differentiate clearly between needs and wants",
+    "Avoid unnecessary subscriptions and recurring expenses",
+    "Plan your purchases in advance",
+    "Compare prices before making buying decisions",
+    "Use discounts and offers wisely, not impulsively",
+    "Limit the use of credit cards and avoid debt traps"
+    
+    
+    ]
+
+    bullet_list = ListFlowable(
+        [
+            ListItem(
+                Paragraph(point,
+                    ParagraphStyle(
+                        'BulletText',
+                        parent=styles['Normal'],
+                        fontSize=11,
+                        leading=14
+                    )
+                )
+            )
+            for point in bullet_points
+        ],
+        bulletType='bullet',
+        leftIndent=25
+    )
+
+    closing_text = Paragraph(
+        "Stay focused, stay disciplined, and remember — every small step you take today leads to a financially stronger tomorrow."
+        "Managing your money wisely is one of the most powerful skills you can develop in life. "
+"By tracking your income and expenses regularly, you gain clarity and control over your financial decisions. "
+"Saving consistently, even in small amounts, builds a strong foundation for future security and independence. "
+"Discipline in spending helps you avoid unnecessary debt and keeps you focused on what truly matters. "
+"Setting clear financial goals gives direction to your efforts and motivates you to stay committed. "
+"Over time, these smart habits grow into lasting financial stability and confidence. "
+"Remember, every smart choice you make today brings you closer to a secure and stress-free tomorrow.",
+        ParagraphStyle(
+            'ClosingText',
+            parent=styles['Normal'],
+            fontSize=11,
+            leading=15,
+            spaceBefore=12
+        )
+    )
+
+    elements.append(KeepTogether([
+        motivation_title,
+        motivation_text,
+        extra_text,
+        bullet_list,
+        closing_text,
+        Spacer(1, 20)
+    ]))
+
+    elements.append(PageBreak())
+
+    # ---------- CATEGORY DATA ----------
     category_data = defaultdict(float)
     for e in expenses:
         category_data[e.category] += e.amount
 
+    # ---------- MONTHLY DATA ----------
     monthly_income = defaultdict(float)
     monthly_expense = defaultdict(float)
 
@@ -250,50 +395,222 @@ def download_report(request):
         month = calendar.month_abbr[e.date.month]
         monthly_expense[month] += e.amount
 
-    months = sorted(set(list(monthly_income.keys()) + list(monthly_expense.keys())))
+    all_months = list(calendar.month_abbr)[1:]
+    months = [m for m in all_months if monthly_income[m] > 0 or monthly_expense[m] > 0]
+
+    income_data = [monthly_income[m] for m in months]
+    expense_data = [monthly_expense[m] for m in months]
+
+    # ---------- CHART SECTION ----------
+    chart_section = []
+
+    if category_data:
+        chart_section.append(Paragraph("Expense Distribution (Category Wise)", heading_style))
+
+        pie = Pie()
+        pie.width = 200
+        pie.height = 200
+
+        values = list(category_data.values())
+        labels = list(category_data.keys())
+        total = sum(values)
+
+        pie.data = values
+        pie.labels = [
+            f"{label} (₹{value:.0f}, {value/total*100:.1f}%)"
+            for label, value in zip(labels, values)
+        ]
+
+        pie_draw = Drawing(400, 250)
+        pie.x = 100
+        pie.y = 20
+        pie_draw.add(pie)
+
+        chart_section.append(pie_draw)
+        chart_section.append(Spacer(1, 20))
 
     if months:
-        income_data = [monthly_income[m] for m in months]
-        expense_data = [monthly_expense[m] for m in months]
-
-        drawing = Drawing(500, 300)
-
-        if category_data:
-            pie = Pie()
-            pie.x = 40
-            pie.y = 60
-            pie.width = 170
-            pie.height = 170
-            pie.data = list(category_data.values())
-            pie.labels = list(category_data.keys())
-            drawing.add(pie)
+        chart_section.append(Paragraph("Monthly Income vs Expense", heading_style))
 
         bar = VerticalBarChart()
-        bar.x = 260
-        bar.y = 60
-        bar.height = 170
-        bar.width = 200
+        bar.x = 50
+        bar.y = 50
+        bar.height = 200
+        bar.width = 300
         bar.data = [income_data, expense_data]
         bar.categoryAxis.categoryNames = months
 
-        drawing.add(bar)
-        elements.append(drawing)
+        bar.valueAxis.valueMin = 0
+        bar.valueAxis.valueMax = max(income_data + expense_data) * 1.2
+
+        bar.bars[0].fillColor = colors.green
+        bar.bars[1].fillColor = colors.red
+
+        bar_draw = Drawing(400, 320)
+        bar_draw.add(bar)
+
+        legend = Legend()
+        legend.x = 330
+        legend.y = 200
+        legend.colorNamePairs = [
+            (colors.green, "Income"),
+            (colors.red, "Expense"),
+        ]
+        bar_draw.add(legend)
+
+        chart_section.append(bar_draw)
+
+    if chart_section:
+        elements.append(KeepTogether(chart_section))
+        elements.append(Spacer(1, 20))
 
     elements.append(PageBreak())
 
-    data = [["Date", "Category", "Amount", "Type"]]
+    # ---------- LINE CHART ----------
+    chart_section = []
 
+    elements.append(Paragraph("Monthly Savings Trend", heading_style))
+
+    all_months = list(calendar.month_abbr)[1:]
+
+    monthly_savings = []
+    for m in all_months:
+        income = monthly_income[m]
+        expense = monthly_expense[m]
+        monthly_savings.append(income - expense)
+
+    line_data = [[(i + 1, monthly_savings[i]) for i in range(len(all_months))]]
+
+    line = LinePlot()
+    line.x = 50
+    line.y = 30
+    line.height = 180
+    line.width = 400
+    line.data = line_data
+
+    line.xValueAxis.valueMin = 1
+    line.xValueAxis.valueMax = 12
+    line.xValueAxis.valueSteps = list(range(1, 13))
+    line.xValueAxis.labelTextFormat = lambda x: all_months[int(x) - 1]
+
+    line.yValueAxis.valueMin = min(0, min(monthly_savings))
+    line.yValueAxis.valueMax = max(monthly_savings) * 1.2 if max(monthly_savings) != 0 else 1000
+
+    line.lines[0].strokeColor = colors.HexColor("#22c55e")
+    line.lines[0].strokeWidth = 2
+
+    line.lines[0].symbol = makeMarker('Circle')
+    line.lines[0].symbol.size = 4
+    line.lines[0].symbol.fillColor = colors.white
+    line.lines[0].symbol.strokeColor = colors.HexColor("#22c55e")
+
+    line_draw = Drawing(500, 250)
+    line_draw.add(line)
+    from reportlab.graphics.shapes import String
+
+    for i, val in enumerate(monthly_savings):
+       x = 50 + (i * (400 / 12))
+       y = 30 + (val / line.yValueAxis.valueMax * 180)
+
+       line_draw.add(String(
+           x,
+           y + 5,
+           str(int(val)),
+          fontSize=7
+       ))
+    elements.append(line_draw)
+    elements.append(Spacer(1, 10))
+
+    # ---------- BUBBLE CHART ----------
+    elements.append(Paragraph("Category Expense Bubble View", heading_style))
+
+    bubble_draw = Drawing(500, 350)
+    categories = list(category_data.keys())
+    values = list(category_data.values())
+
+    max_value = max(values) if values else 1
+
+    x_positions = [80, 200, 320, 440]
+    y_positions = [200, 120, 40]
+
+    index = 0
+
+    for i, value in enumerate(values):
+        if index >= len(x_positions) * len(y_positions):
+            break
+
+        x = x_positions[index % 4]
+        y = y_positions[index // 4]
+
+        radius = 15 + (value / max_value) * 35
+
+        bubble = Circle(x, y, radius)
+        bubble.fillColor = colors.HexColor("#38bdf8")
+        bubble.strokeColor = colors.white
+        bubble.strokeWidth = 1
+
+        bubble_draw.add(bubble)
+
+        # Category name (slightly above center)
+        bubble_draw.add(String(
+            x,
+            y + 5,
+            categories[i],
+            fontSize=7,
+            textAnchor="middle"
+        ))
+
+        # Value (below category)
+        bubble_draw.add(String(
+           x,
+           y - 8,
+           f"₹{int(value)}",
+           fontSize=7,
+           textAnchor="middle"
+        ))
+
+        index += 1
+
+    elements.append(bubble_draw)
+    elements.append(Spacer(1, 20))
+    elements.append(PageBreak())
+    # ---------- INCOME TABLE ----------
+    elements.append(Paragraph("Income Details", heading_style))
+
+    income_table_data = [["Date", "Category", "Amount"]]
     for i in incomes:
-        data.append([str(i.date), i.category, f"₹ {i.amount}", "Income"])
+        income_table_data.append([str(i.date), i.category, f"₹ {i.amount}"])
 
+    income_table = Table(income_table_data, repeatRows=1)
+    income_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.green),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('PADDING', (0, 0), (-1, -1), 8),
+    ]))
+
+    elements.append(income_table)
+    elements.append(Spacer(1, 30))
+
+    # ---------- EXPENSE TABLE ----------
+    elements.append(Paragraph("Expense Details", heading_style))
+
+    expense_table_data = [["Date", "Category", "Amount"]]
     for e in expenses:
-        data.append([str(e.date), e.category, f"₹ {e.amount}", "Expense"])
+        expense_table_data.append([str(e.date), e.category, f"₹ {e.amount}"])
 
-    table = Table(data, repeatRows=1)
+    expense_table = Table(expense_table_data, repeatRows=1)
+    expense_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.red),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('PADDING', (0, 0), (-1, -1), 8),
+    ]))
 
-    elements.append(table)
+    elements.append(expense_table)
 
-    doc.build(elements, onFirstPage=add_background, onLaterPages=add_background)
+    # ---------- BUILD ----------
+    doc.build(elements)
 
     return response
 
@@ -446,18 +763,46 @@ def insights(request):
             monthly_budget_limits.append(0)
     # -------- EXTRA CATEGORY TRENDS (FOR PIE CHART) --------
 
-    groceries_trend = [0]*12
-    personal_care_trend = [0]*12
-    transport_trend = [0]*12
-    travel_trend = [0]*12
-    rent_trend = [0]*12
-    internet_trend = [0]*12
-    loan_trend = [0]*12
-    shopping_trend = [0]*12
-    entertainment_trend = [0]*12
-    health_trend = [0]*12
-    education_trend = [0]*12
-    bike_service_trend = [0]*12
+    groceries_trend = []
+    personal_care_trend = []
+    transport_trend = []
+    travel_trend = []
+    rent_trend = []
+    internet_trend = []
+    loan_trend = []
+    shopping_trend = []
+    entertainment_trend = []
+    health_trend = []
+    education_trend = []
+    bike_service_trend = []
+
+    for i in range(1,13):
+
+       groceries = expenses.filter(date__month=i, category='Groceries').aggregate(Sum('amount'))['amount__sum'] or 0
+       personal = expenses.filter(date__month=i, category='Personal Care').aggregate(Sum('amount'))['amount__sum'] or 0
+       transport = expenses.filter(date__month=i, category='Transport').aggregate(Sum('amount'))['amount__sum'] or 0
+       travel = expenses.filter(date__month=i, category='Travel').aggregate(Sum('amount'))['amount__sum'] or 0
+       rent = expenses.filter(date__month=i, category='Rent').aggregate(Sum('amount'))['amount__sum'] or 0
+       internet = expenses.filter(date__month=i, category='Internet / Mobile Recharge').aggregate(Sum('amount'))['amount__sum'] or 0
+       loan = expenses.filter(date__month=i, category='Loan').aggregate(Sum('amount'))['amount__sum'] or 0
+       shopping = expenses.filter(date__month=i, category='Shopping').aggregate(Sum('amount'))['amount__sum'] or 0
+       entertainment = expenses.filter(date__month=i, category='Entertainment').aggregate(Sum('amount'))['amount__sum'] or 0
+       health = expenses.filter(date__month=i, category='Health / Medical').aggregate(Sum('amount'))['amount__sum'] or 0
+       education = expenses.filter(date__month=i, category='Education').aggregate(Sum('amount'))['amount__sum'] or 0
+       bike_service = expenses.filter(date__month=i, category='Bike Service').aggregate(Sum('amount'))['amount__sum'] or 0
+
+       groceries_trend.append(float(groceries))
+       personal_care_trend.append(float(personal))
+       transport_trend.append(float(transport))
+       travel_trend.append(float(travel))
+       rent_trend.append(float(rent))
+       internet_trend.append(float(internet))
+       loan_trend.append(float(loan))
+       shopping_trend.append(float(shopping))
+       entertainment_trend.append(float(entertainment))
+       health_trend.append(float(health))
+       education_trend.append(float(education))
+       bike_service_trend.append(float(bike_service))
 
         # -------- PIE CHART CATEGORY DATA (DASHBOARD LOGIC) --------
 
@@ -470,6 +815,23 @@ def insights(request):
         category_month_data[e.category][month_index] += float(e.amount)
 
     category_month_data = dict(category_month_data)
+
+    # -------- WEEKLY SPENDING DATA --------
+
+    weekly_spending = {}
+
+    for i in range(1,13):
+
+       week = [0,0,0,0,0,0,0]
+
+       month_expenses = expenses.filter(date__month=i)
+
+       for e in month_expenses:
+
+           day = e.date.weekday()   # Monday=0 ... Sunday=6
+           week[day] += float(e.amount)
+
+       weekly_spending[i-1] = week
 
     context = {
 
@@ -490,8 +852,7 @@ def insights(request):
         sum(savings)
     ]),
 
-    "weekly_spending": json.dumps([1200,1500,900,2000,800,2500,1400]),
-
+    "weekly_spending": json.dumps(weekly_spending),
     "wealth_growth": json.dumps(savings),
 
     "top_categories": json.dumps(categories),
@@ -500,6 +861,20 @@ def insights(request):
     "food_trend": json.dumps(food_trend),
     "fuel_trend": json.dumps(fuel_trend),
     "bills_trend": json.dumps(bills_trend),
+     
+      # 🔴 ADD THESE
+    "groceries_trend": json.dumps(groceries_trend),
+    "personal_care_trend": json.dumps(personal_care_trend),
+    "transport_trend": json.dumps(transport_trend),
+    "travel_trend": json.dumps(travel_trend),
+    "rent_trend": json.dumps(rent_trend),
+    "internet_trend": json.dumps(internet_trend),
+    "loan_trend": json.dumps(loan_trend),
+    "shopping_trend": json.dumps(shopping_trend),
+    "entertainment_trend": json.dumps(entertainment_trend),
+    "health_trend": json.dumps(health_trend),
+    "education_trend": json.dumps(education_trend),
+    "bike_service_trend": json.dumps(bike_service_trend),
 
     "budget_limits": json.dumps(monthly_budget_limits)
 }
@@ -538,3 +913,40 @@ def edit_profile(request):
         return redirect("profile")
 
     return render(request, "edit_profile.html", {"profile": profile})
+
+
+
+
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import PasswordChangeView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
+
+
+class StyledPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['old_password'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Enter old password'
+        })
+
+        self.fields['new_password1'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Enter new password'
+        })
+
+        self.fields['new_password2'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Confirm new password'
+        })
+
+
+# 🔥 FINAL VIEW (THIS WILL FIX YOUR ISSUE)
+class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
+    template_name = 'change_password.html'
+    form_class = StyledPasswordChangeForm
+    success_url = reverse_lazy('profile')
+
+    success_message = "Password changed successfully 🎉"

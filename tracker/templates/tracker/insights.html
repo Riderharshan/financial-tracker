@@ -367,6 +367,150 @@ background:#0f172a;
 color:#e2e8f0;
 
 }
+/* Weekly Month Dropdown */
+
+#weeklyMonth{
+
+appearance:none;
+-webkit-appearance:none;
+-moz-appearance:none;
+
+background:linear-gradient(145deg,#1e293b,#0f172a);
+
+color:#e2e8f0;
+
+border:1px solid #334155;
+
+border-radius:12px;
+
+padding:10px 36px 10px 16px;
+
+font-size:14px;
+font-weight:500;
+
+cursor:pointer;
+
+/* floating glass effect */
+
+box-shadow:
+0 10px 22px rgba(0,0,0,0.45),
+0 0 0 1px rgba(59,130,246,0.15);
+
+transition:all 0.25s ease;
+
+position:relative;
+
+}
+
+
+/* Hover Floating Animation */
+
+#weeklyMonth:hover{
+
+transform:translateY(-2px);
+
+box-shadow:
+0 14px 28px rgba(0,0,0,0.55),
+0 0 0 1px rgba(56,189,248,0.35);
+
+}
+
+
+/* Focus Glow */
+
+#weeklyMonth:focus{
+
+outline:none;
+
+border-color:#38bdf8;
+
+box-shadow:
+0 0 0 2px rgba(56,189,248,0.25),
+0 14px 28px rgba(0,0,0,0.55);
+
+}
+
+
+/* Dropdown options */
+
+#weeklyMonth option{
+
+background:#0f172a;
+color:#e2e8f0;
+
+}
+/* Category Monthly Trend Dropdown */
+
+#categoryMonthSelector{
+
+appearance:none;
+-webkit-appearance:none;
+-moz-appearance:none;
+
+background:linear-gradient(145deg,#1e293b,#0f172a);
+
+color:#e2e8f0;
+
+border:1px solid #334155;
+
+border-radius:12px;
+
+padding:10px 36px 10px 16px;
+
+font-size:14px;
+font-weight:500;
+
+cursor:pointer;
+
+/* floating glass effect */
+
+box-shadow:
+0 10px 22px rgba(0,0,0,0.45),
+0 0 0 1px rgba(59,130,246,0.15);
+
+transition:all 0.25s ease;
+
+position:relative;
+
+}
+
+
+/* Hover floating effect */
+
+#categoryMonthSelector:hover{
+
+transform:translateY(-2px);
+
+box-shadow:
+0 14px 28px rgba(0,0,0,0.55),
+0 0 0 1px rgba(56,189,248,0.35);
+
+}
+
+
+/* Focus glow */
+
+#categoryMonthSelector:focus{
+
+outline:none;
+
+border-color:#38bdf8;
+
+box-shadow:
+0 0 0 2px rgba(56,189,248,0.25),
+0 14px 28px rgba(0,0,0,0.55);
+
+}
+
+
+/* Dropdown options */
+
+#categoryMonthSelector option{
+
+background:#0f172a;
+color:#e2e8f0;
+
+}
 </style>
 
 
@@ -485,16 +629,74 @@ color:#e2e8f0;
 
 <!-- 5 Weekly Spending -->
 
+<!-- 5 Weekly Spending -->
+
 <div class="analytics-card">
-<h3>Weekly Spending Heatmap</h3>
+
+<h3>Weekly Spending</h3>
+
+<div class="category-dropdown">
+
+<label>Select Month</label>
+
+<select id="weeklyMonth">
+
+<option value="all">All Months</option>
+
+<option value="0">Jan</option>
+<option value="1">Feb</option>
+<option value="2">Mar</option>
+<option value="3">Apr</option>
+<option value="4">May</option>
+<option value="5">Jun</option>
+<option value="6">Jul</option>
+<option value="7">Aug</option>
+<option value="8">Sep</option>
+<option value="9">Oct</option>
+<option value="10">Nov</option>
+<option value="11">Dec</option>
+
+</select>
+
+</div>
+
 <canvas id="weeklyHeatmap"></canvas>
+
 </div>
 
 <!-- 6 Wealth Growth -->
 
 <div class="analytics-card">
-<h3>Cumulative Wealth Growth</h3>
-<canvas id="wealthGrowth"></canvas>
+
+<h3>Category Monthly Trend</h3>
+
+<div class="category-dropdown">
+
+<label>Select Category</label>
+
+<select id="categoryMonthSelector">
+
+<option value="Food">Food</option>
+<option value="Fuel / Petrol">Fuel / Petrol</option>
+<option value="Groceries">Groceries</option>
+<option value="Personal Care">Personal Care</option>
+<option value="Transport">Transport</option>
+<option value="Travel">Travel</option>
+<option value="Rent">Rent</option>
+<option value="Internet / Mobile Recharge">Internet</option>
+<option value="Loan">Loan</option>
+<option value="Shopping">Shopping</option>
+<option value="Entertainment">Entertainment</option>
+<option value="Health / Medical">Health</option>
+<option value="Education">Education</option>
+<option value="Bike Service">Bike Service</option>
+
+</select>
+
+</div>
+
+<canvas id="categoryMonthlyTrend"></canvas>
+
 </div>
 
 <!-- 7 Top Expense -->
@@ -619,6 +821,7 @@ const ctx2 = document.getElementById('categoryTrend').getContext('2d');
 
 /* DATA FROM DJANGO */
 const months = JSON.parse('{{ months|escapejs }}');
+
 const foodData = JSON.parse('{{ food_trend|escapejs }}');
 const fuelData = JSON.parse('{{ fuel_trend|escapejs }}');
 const billsData = JSON.parse('{{ bills_trend|escapejs }}');
@@ -642,13 +845,7 @@ const educationData = JSON.parse('{{ education_trend|escapejs }}');
 const bikeServiceData = JSON.parse('{{ bike_service_trend|escapejs }}');
 
 
-/* FUNCTION TO CREATE ZERO DATA */
-function zeroData(){
-    return new Array(months.length).fill(0);
-}
-
-
-/* DATASETS STORE */
+/* DATASETS */
 
 const datasets = {
 
@@ -678,7 +875,7 @@ tension:0.45
 
 groceries:{
 label:'Groceries',
-data:zeroData(),
+data:groceriesData,
 borderColor:'#10b981',
 borderWidth:3,
 tension:0.45
@@ -686,7 +883,7 @@ tension:0.45
 
 personal_care:{
 label:'Personal Care',
-data:zeroData(),
+data:personalCareData,
 borderColor:'#a855f7',
 borderWidth:3,
 tension:0.45
@@ -694,7 +891,7 @@ tension:0.45
 
 transport:{
 label:'Transport',
-data:zeroData(),
+data:transportData,
 borderColor:'#6366f1',
 borderWidth:3,
 tension:0.45
@@ -702,7 +899,7 @@ tension:0.45
 
 travel:{
 label:'Travel',
-data:zeroData(),
+data:travelData,
 borderColor:'#f59e0b',
 borderWidth:3,
 tension:0.45
@@ -710,7 +907,7 @@ tension:0.45
 
 rent:{
 label:'Rent / Housing',
-data:zeroData(),
+data:rentData,
 borderColor:'#22c55e',
 borderWidth:3,
 tension:0.45
@@ -718,7 +915,7 @@ tension:0.45
 
 internet:{
 label:'Internet / Mobile Recharge',
-data:zeroData(),
+data:internetData,
 borderColor:'#06b6d4',
 borderWidth:3,
 tension:0.45
@@ -726,7 +923,7 @@ tension:0.45
 
 loan:{
 label:'Loan',
-data:zeroData(),
+data:loanData,
 borderColor:'#e11d48',
 borderWidth:3,
 tension:0.45
@@ -734,7 +931,7 @@ tension:0.45
 
 shopping:{
 label:'Shopping',
-data:zeroData(),
+data:shoppingData,
 borderColor:'#ec4899',
 borderWidth:3,
 tension:0.45
@@ -742,7 +939,7 @@ tension:0.45
 
 entertainment:{
 label:'Entertainment',
-data:zeroData(),
+data:entertainmentData,
 borderColor:'#84cc16',
 borderWidth:3,
 tension:0.45
@@ -750,7 +947,7 @@ tension:0.45
 
 health:{
 label:'Health / Medical',
-data:zeroData(),
+data:healthData,
 borderColor:'#14b8a6',
 borderWidth:3,
 tension:0.45
@@ -758,7 +955,7 @@ tension:0.45
 
 education:{
 label:'Education',
-data:zeroData(),
+data:educationData,
 borderColor:'#9333ea',
 borderWidth:3,
 tension:0.45
@@ -766,7 +963,7 @@ tension:0.45
 
 bike_service:{
 label:'Bike Service',
-data:zeroData(),
+data:bikeServiceData,
 borderColor:'#f97316',
 borderWidth:3,
 tension:0.45
@@ -1287,56 +1484,357 @@ updatePie(this.value);
 });
 /* -------- 5 Weekly Spending -------- */
 
-new Chart(document.getElementById('weeklyHeatmap'),{
+const ctxWeekly = document.getElementById('weeklyHeatmap').getContext('2d');
+
+/* DATA FROM DJANGO */
+const weeklyData = JSON.parse('{{ weekly_spending|escapejs }}');
+
+/* Gradient */
+
+const weeklyGradient = ctxWeekly.createLinearGradient(0,0,0,400);
+weeklyGradient.addColorStop(0,'#60a5fa');
+weeklyGradient.addColorStop(1,'#2563eb');
+
+
+/* Shadow plugin */
+
+const weeklyShadow = {
+
+id:'weeklyShadow',
+
+beforeDatasetsDraw(chart){
+
+const {ctx} = chart;
+
+ctx.save();
+
+ctx.shadowColor = "rgba(0,0,0,0.35)";
+ctx.shadowBlur = 12;
+ctx.shadowOffsetX = 2;
+ctx.shadowOffsetY = 4;
+
+},
+
+afterDatasetsDraw(chart){
+chart.ctx.restore();
+}
+
+};
+
+
+/* Function to get weekly data */
+
+function getWeeklyData(month){
+
+if(month === "all"){
+
+let total = [0,0,0,0,0,0,0];
+
+Object.values(weeklyData).forEach(m => {
+
+for(let i=0;i<7;i++){
+total[i] += m[i];
+}
+
+});
+
+return total;
+
+}else{
+
+return weeklyData[month] || [0,0,0,0,0,0,0];
+
+}
+
+}
+
+
+/* Create chart */
+
+let weeklyChart = new Chart(ctxWeekly,{
 
 type:'bar',
 
 data:{
+
 labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
 
 datasets:[{
 
-label:'Spending',
+label:'Weekly Spending',
 
-data:JSON.parse('{{ weekly_spending|escapejs }}'),
+data:getWeeklyData("all"),
 
-backgroundColor:'#3b82f6'
+backgroundColor:weeklyGradient,
+
+borderRadius:12,
+borderSkipped:false,
+
+barThickness:28,
+maxBarThickness:34,
+
+hoverBackgroundColor:'#3b82f6'
 
 }]
+
+},
+
+options:{
+
+responsive:true,
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{display:false},
+
+tooltip:{
+
+backgroundColor:'#0f172a',
+titleColor:'#ffffff',
+bodyColor:'#e2e8f0',
+
+borderColor:'#334155',
+borderWidth:1,
+
+cornerRadius:8,
+padding:12,
+
+callbacks:{
+label:function(context){
+return "Spending : ₹" + context.raw.toLocaleString();
 }
+}
+
+}
+
+},
+
+scales:{
+
+x:{
+grid:{display:false},
+ticks:{
+color:'#cbd5f5',
+font:{size:13,weight:'600'}
+}
+},
+
+y:{
+
+beginAtZero:true,
+
+grid:{
+color:"rgba(255,255,255,0.05)"
+},
+
+ticks:{
+color:'#cbd5f5',
+callback:function(value){
+return "₹" + value;
+}
+}
+
+}
+
+},
+
+animation:{
+duration:1600,
+easing:'easeOutQuart'
+}
+
+},
+
+plugins:[weeklyShadow]
 
 });
 
 
-/* -------- 6 Wealth Growth -------- */
+/* Dropdown change */
 
-new Chart(document.getElementById('wealthGrowth'),{
+document.getElementById("weeklyMonth").addEventListener("change",function(){
+
+let month = this.value;
+
+weeklyChart.data.datasets[0].data = getWeeklyData(month);
+
+weeklyChart.update();
+
+});
+/* -------- 6 Wealth Growth -------- */
+/* -------- CATEGORY GRADIENT WAVE CHART -------- */
+
+const ctxCategoryMonth = document.getElementById('categoryMonthlyTrend').getContext('2d');
+
+/* DATA FROM DJANGO */
+
+const monthsData = JSON.parse('{{ months|escapejs }}');
+
+const categoryData = {
+
+"Food": JSON.parse('{{ food_trend|escapejs }}'),
+"Fuel / Petrol": JSON.parse('{{ fuel_trend|escapejs }}'),
+"Groceries": JSON.parse('{{ groceries_trend|escapejs }}'),
+"Personal Care": JSON.parse('{{ personal_care_trend|escapejs }}'),
+"Transport": JSON.parse('{{ transport_trend|escapejs }}'),
+"Travel": JSON.parse('{{ travel_trend|escapejs }}'),
+"Rent": JSON.parse('{{ rent_trend|escapejs }}'),
+"Internet / Mobile Recharge": JSON.parse('{{ internet_trend|escapejs }}'),
+"Loan": JSON.parse('{{ loan_trend|escapejs }}'),
+"Shopping": JSON.parse('{{ shopping_trend|escapejs }}'),
+"Entertainment": JSON.parse('{{ entertainment_trend|escapejs }}'),
+"Health / Medical": JSON.parse('{{ health_trend|escapejs }}'),
+"Education": JSON.parse('{{ education_trend|escapejs }}'),
+"Bike Service": JSON.parse('{{ bike_service_trend|escapejs }}')
+
+};
+
+
+/* -------- GRADIENT WAVE -------- */
+
+/* -------- COLORFUL GRADIENT WAVE -------- */
+
+const waveGradient = ctxCategoryMonth.createLinearGradient(0,0,0,400);
+
+waveGradient.addColorStop(0,'rgba(56,189,248,0.85)');   // Sky Blue
+waveGradient.addColorStop(0.35,'rgba(139,92,246,0.60)'); // Purple
+waveGradient.addColorStop(0.65,'rgba(236,72,153,0.45)'); // Pink
+waveGradient.addColorStop(1,'rgba(34,197,94,0.30)');     // Green
+
+
+/* -------- CHART -------- */
+
+let categoryMonthChart = new Chart(ctxCategoryMonth,{
 
 type:'line',
 
 data:{
-labels:JSON.parse('{{ months|escapejs }}'),
+
+labels:monthsData,
 
 datasets:[{
 
-label:'Wealth',
+label:'Food',
 
-data:JSON.parse('{{ wealth_growth|escapejs }}'),
+data:categoryData["Food"],
 
-borderColor:'#a855f7',
+borderColor:'#38bdf8',
 
-backgroundColor:'rgba(168,85,247,0.2)',
+backgroundColor:waveGradient,
+
+borderWidth:3,
 
 fill:true,
 
-tension:0.4
+tension:0.5,   // smooth wave
+
+pointBackgroundColor:'#38bdf8',
+pointBorderColor:'#ffffff',
+pointBorderWidth:2,
+pointRadius:5,
+pointHoverRadius:9
 
 }]
+
+},
+
+options:{
+
+responsive:true,
+
+interaction:{
+mode:'index',
+intersect:false
+},
+
+plugins:{
+
+legend:{
+labels:{
+color:'#e5e7eb',
+font:{
+size:13,
+weight:'bold'
+}
+}
+},
+
+tooltip:{
+
+backgroundColor:'#0f172a',
+
+titleColor:'#ffffff',
+
+bodyColor:'#e2e8f0',
+
+borderColor:'#334155',
+
+borderWidth:1,
+
+cornerRadius:8,
+
+padding:12,
+
+callbacks:{
+label:function(context){
+return context.dataset.label + " : ₹" + context.raw.toLocaleString();
+}
+}
+
+}
+
+},
+
+scales:{
+
+x:{
+grid:{
+color:"rgba(255,255,255,0.05)"
+},
+ticks:{
+color:'#cbd5f5'
+}
+},
+
+y:{
+beginAtZero:true,
+grid:{
+color:"rgba(255,255,255,0.05)"
+},
+ticks:{
+color:'#cbd5f5',
+callback:function(value){
+return "₹" + value;
+}
+}
+}
+
+},
+
+animation:{
+duration:1800,
+easing:'easeOutQuart'
+}
+
 }
 
 });
 
 
+/* -------- DROPDOWN CHANGE -------- */
+
+document.getElementById("categoryMonthSelector").addEventListener("change",function(){
+
+let selectedCategory = this.value;
+
+categoryMonthChart.data.datasets[0].label = selectedCategory;
+
+categoryMonthChart.data.datasets[0].data = categoryData[selectedCategory];
+
+categoryMonthChart.update();
+
+});
 /* -------- 7 Top Expense -------- */
 /* -------- 7 Top Expense -------- */
 
